@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>eBay Project</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+  <!-- Navbar -->
+  <header class="navbar-container">
+    <div class="navbar bg-dark text-white px-4 py-3 d-flex justify-content-between align-items-center">
+      <div class="d-flex align-items-center">
+        <img src="amazon logo.png" alt="Logo" class="logo me-3">
+        <h4 class="mb-0 text-warning">eBay Project</h4>
+      </div>
+
+      <div class="nav-search d-flex align-items-center">
+        <select class="form-select w-auto me-2">
+          <option>All</option>
+          <option>Electronics</option>
+          <option>Fashion</option>
+          <option>Beauty</option>
+        </select>
+        <input placeholder="Search products..." class="form-control me-2" id="searchInput">
+        <button class="btn btn-warning" id="searchBtn"><i class="fa-solid fa-search"></i></button>
+      </div>
+
+      <div class="d-flex align-items-center">
+        <div class="me-4">Hello, <span class="fw-semibold">Sign In</span></div>
+        <div class="me-4">Returns & Orders</div>
+        <div class="position-relative" id="cartButton" style="cursor:pointer;">
+          <i class="fa-solid fa-cart-shopping fa-xl"></i>
+          <span id="cartCount" class="badge bg-danger position-absolute top-0 start-100 translate-middle">0</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero-section text-center text-white d-flex align-items-center justify-content-center">
+    <div class="hero-msg bg-dark bg-opacity-50 p-3 rounded">
+      <p>You are on ebay.com. Shop millions of products with fast local delivery. 
+      <a href="#" class="text-warning fw-bold">Click here for ebay.co.uk</a></p>
+    </div>
+  </section>
+
+  <!-- Products Section -->
+  <section class="shop-sec py-5" id="productContainer"></section>
+
+  <!-- Cart Modal -->
+  <div class="modal fade" id="cartModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header bg-dark text-white">
+          <h5 class="modal-title">🛒 Your Shopping Cart</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div id="cartItems"></div>
+          <div class="d-flex justify-content-between mt-3">
+            <h5>Total:</h5>
+            <h5 id="cartTotal">$0</h5>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button class="btn btn-warning">Checkout</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Splash Treat Modal -->
+  <div class="modal fade" id="treatModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content text-center p-4 treat-modal">
+        <div class="modal-header border-0">
+          <h4 class="w-100 fw-bold text-dark"> Special Alert!</h4>
+        </div>
+        <div class="modal-body">
+          <p class="fw-semibold fs-5">Sehar, please give me treat for this work! 😄</p>
+        </div>
+        <div class="modal-footer border-0 d-flex justify-content-center">
+          <button class="btn btn-primary" data-bs-dismiss="modal">Okay</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer text-center py-3 bg-dark text-white">
+    <p class="mb-0">© 2025 eBay Project | Developed by <strong>Sehar Sajid</strong></p>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // --- Products Data ---
+    const products = [
+      { id: 1, name: "Health & Care", price: 15.99, image: "health care.jpg" },
+      { id: 2, name: "Skin Care", price: 12.49, image: "skin care.jpg" },
+      { id: 3, name: "Women Items", price: 20.99, image: "women item.jpg" },
+      { id: 4, name: "Hair Care", price: 10.99, image: "hair care.jpg" },
+      { id: 5, name: "Smart Watch", price: 55.00, image: "watch.jpg" },
+      { id: 6, name: "Perfume", price: 25.99, image: "perfume.jpg" }
+    ];
+
+    const cart = [];
+    const productContainer = document.getElementById("productContainer");
+
+    // --- Render Products ---
+    function renderProducts() {
+      productContainer.innerHTML = `
+        <div class="container">
+          <div class="row g-4">
+            ${products.map(p => `
+              <div class="col-md-4 col-lg-3">
+                <div class="card h-100 shadow-sm">
+                  <img src="${p.image}" class="card-img-top" alt="${p.name}">
+                  <div class="card-body text-center">
+                    <h5 class="card-title">${p.name}</h5>
+                    <p class="text-muted">$${p.price.toFixed(2)}</p>
+                    <button class="btn btn-warning w-100" onclick="addToCart(${p.id})">
+                      <i class="fa-solid fa-cart-plus me-1"></i>Add to Cart
+                    </button>
+                  </div>
+                </div>
+              </div>
+            `).join("")}
+          </div>
+        </div>
+      `;
+    }
+
+    // --- Add to Cart ---
+    function addToCart(id) {
+      const product = products.find(p => p.id === id);
+      const existing = cart.find(item => item.id === id);
+
+      if (existing) {
+        existing.quantity++;
+      } else {
+        cart.push({ ...product, quantity: 1 });
+      }
+
+      updateCartCount();
+      updateCartModal();
+    }
+
+    // --- Update Cart Count ---
+    function updateCartCount() {
+      document.getElementById("cartCount").innerText = cart.reduce((sum, i) => sum + i.quantity, 0);
+    }
+
+    // --- Update Modal ---
+    function updateCartModal() {
+      const cartItems = document.getElementById("cartItems");
+      const total = cart.reduce((sum, i) => sum + i.price * i.quantity, 0);
+      document.getElementById("cartTotal").innerText = "$" + total.toFixed(2);
+
+      if (cart.length === 0) {
+        cartItems.innerHTML = "<p class='text-center text-muted'>Your cart is empty.</p>";
+        return;
+      }
+
+      cartItems.innerHTML = cart.map(item => `
+        <div class="d-flex justify-content-between align-items-center border-bottom py-2">
+          <div><strong>${item.name}</strong></div>
+          <div>Qty: ${item.quantity}</div>
+          <div>$${(item.price * item.quantity).toFixed(2)}</div>
+        </div>
+      `).join("");
+    }
+
+    // --- Cart Modal Trigger ---
+    document.getElementById("cartButton").addEventListener("click", () => {
+      updateCartModal();
+      const modal = new bootstrap.Modal(document.getElementById("cartModal"));
+      modal.show();
+    });
+
+    // --- Auto Splash Treat Modal ---
+    window.addEventListener("load", () => {
+      const treatModal = new bootstrap.Modal(document.getElementById("treatModal"));
+      treatModal.show();
+    });
+
+    renderProducts();
+  </script>
+</body>
+</html>
